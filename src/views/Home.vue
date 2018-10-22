@@ -1,32 +1,46 @@
 <template>
   <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <RequestInfo :request="requestToCreate" />
-    <button @click="createFile">Create File</button>
+    <request-info :request="requestToCreateFile" />
+    <v-btn outline color="indigo" @click="createFile">Get Started</v-btn>
+    <span v-show="creatingFile">creating...</span>
   </div>
 </template>
 
 <script>
 import RequestInfo from "@/components/RequestInfo";
+import store from "../store";
 
 export default {
   name: "home",
   components: {
-    RequestInfo
+    "request-info": RequestInfo
+  },
+  computed: {
+    creatingFile() {
+      return store.state.creatingFile;
+    },
+    file() {
+      return store.state.file;
+    }
   },
   data() {
     return {
-      requestToCreate: {
-        verb: "POST",
+      requestToCreateFile: {
+        method: "POST",
         url: "http://api.tinylog.io/files/",
         body: {
-          name: "some name"
+          name: "myFileName.log"
         }
       }
     };
   },
   methods: {
-    createFile() {}
+    createFile() {
+      let self = this;
+      store.dispatch("createFile").then(function() {
+        self.$router.push({ name: "file", params: { id: self.file.id } });
+      });
+    }
   }
 };
 </script>
